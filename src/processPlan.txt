@@ -1,0 +1,5 @@
+steps to identify line:	
+	1. acquire image
+	2. convert to grayScale
+	3. plot values of pixels across a single horizontal line onto graph. i.e - intensity plot
+	4. calculate derivatives of the intensity plot
