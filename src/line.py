@@ -10,7 +10,8 @@ def dud(num):
     pass
 
 cv2.namedWindow('control')
-cv2.createTrackbar('horizon', 'control', 255, 255, dud)
+cv2.createTrackbar('filter', 'control', 255, 255, dud)
+cv2.createTrackbar('horizon', 'control', 100, 480, dud)
 
 i = 0
 while(i<1):
@@ -19,10 +20,11 @@ while(i<1):
     #for custom frame analysis
     frame = cv2.imread('../test.png')
     #pretty important
-    frame = cv2.resize(frame, (640, 480))
+    frame = cv2.resize(frame, (640, 481))
     
     #gray image thersh holding
-    lineDetection.grayThresh = 43#cv2.getTrackbarPos('horizon', 'control')
+    lineDetection.grayThresh = cv2.getTrackbarPos('filter', 'control')
+    lineDetection.scanLine = cv2.getTrackbarPos('horizon', 'control')
     
     #main function to find line
     lineDetection.processFrame(frame)
