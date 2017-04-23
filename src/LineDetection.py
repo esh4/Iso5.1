@@ -9,7 +9,7 @@ class LineDetection:
     
     def __init__(self, debugMode=False):
         self.debugMode = debugMode
-        
+        self.scanLine = 100
         self.grayThresh = 255
     
     def processFrame(self, frame):
@@ -17,7 +17,7 @@ class LineDetection:
         grayFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         filtGrayFrame = cv2.inRange(grayFrame, 0, self.grayThresh)
         
-        self.edgeDetect(filtGrayFrame)
+        self.followLine(self.edgeDetect(filtGrayFrame))
         
         if self.debugMode:
             #cv2.imshow('threshed', grayFrame)
@@ -66,26 +66,17 @@ class LineDetection:
         if self.debugMode:
             cv2.imshow('COG', edgedFrame)
             
-    def findLine(self, frame, horizontalLine):	#find black line across a single horizon
-        data = frame
-        dataArray = data[horizontalLine]
-        derivativeArray = []
-        
-        for i in range(len(dataArray)):
-            if i == 0:
-                derivativeArray.append(256)
-            elif i==639:
-                derivativeArray.append(256)
-            else:
-                derivative = dataArray[i - 1] - dataArray[i + 1]
-                derivativeArray.append(256 - derivative)
+    def followLine(self, frame):	#find black line across a single horizon
+        print 'frame', frame
+        edge = 0
+        for p in frame[self.scanLine]:
+            if p > 100:
+                edge = p 
+                print 'found edge at', p, 'pixels'
+                break
                 
-            
         if self.debugMode:
-            self.displayPlots['line'] = dataArray
-            self.displayFrames['line derived'] = derivativeArray 
-            cv2.line(frame, (0, horizontalLine), (640, horizontalLine), (255,0,0), 1)
-            self.displayFrames['original'] = frame
+            pass
             
     def filterContours(self, frame):
         #gets edged image
