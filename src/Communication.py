@@ -11,7 +11,7 @@ class ArduinoCom:
         
     def writeData(self, value):
         try:
-            self.bus.write_byte(value)
+            self.bus.write_word(value)
         except:
             print 'you idiot!'
         

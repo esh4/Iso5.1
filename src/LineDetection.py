@@ -17,11 +17,13 @@ class LineDetection:
         grayFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         filtGrayFrame = cv2.inRange(grayFrame, 0, self.grayThresh)
         
-        self.followLine(self.edgeDetect(filtGrayFrame))
+        return self.followLine(self.edgeDetect(filtGrayFrame))
         
         if self.debugMode:
             # cv2.imshow('threshed', grayFrame)
             pass
+        
+        
         
     def edgeDetect(self, frame):
         src = frame
@@ -78,6 +80,7 @@ class LineDetection:
                 print 'found edge at', p, 'pixels'
                 break
                 
+        return edge
         if self.debugMode:
             cv2.imshow('followLine input', frame)
             
