@@ -104,7 +104,7 @@ class LineDetection:
         for data in dataArray:
             cv2.line(blackMat, (i, 256), (i, data), (255, 0, 0), 1)
             i = i + 1
-        
-        cv2.imshow('plot', blackMat)
-        return blackMat
+        if self.debugMode:
+            cv2.imshow('plot', blackMat)
+            return blackMat
 
