@@ -5,7 +5,6 @@ from Communication import ArduinoCom
 import time
 
 cap = cv2.VideoCapture(0)
-measureLine = 100
 lineDetection = LineDetection(False)
 arduino = ArduinoCom()
 
@@ -21,9 +20,9 @@ i = 1
 while(i>0):
     #Capture frame-by-frame
     ret, frame = cap.read()
+    #frame = cv2.imread('test.png')
     if ret:
-        #for custom frame analysis
-        #frame = cv2.imread('../test.png')
+        
         #pretty important
         frame = cv2.resize(frame, (640, 480))
         
@@ -34,10 +33,13 @@ while(i>0):
         
         else:
             lineDetection.grayThresh = 50
-            lineDetection.scanLine = 500
+            lineDetection.scanLine = 300
             
         #main function to find line
-        arduino.writeData(lineDetection.processFrame(frame))
+        edgedFrame = lineDetection.edgeDetect(lineDetection.processFrame(frame))
+        px = lineDetection.followLine(edgedFrame)
+        
+        arduino.writeData(px)
     
     else:
         print 'no frame!', i

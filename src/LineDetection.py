@@ -17,7 +17,7 @@ class LineDetection:
         grayFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         filtGrayFrame = cv2.inRange(grayFrame, 0, self.grayThresh)
         
-        return self.followLine(self.edgeDetect(filtGrayFrame))
+        return filtGrayFrame
         
         if self.debugMode:
             # cv2.imshow('threshed', grayFrame)
@@ -56,15 +56,18 @@ class LineDetection:
             x = 0
             while x < len(edgedFrame[y]):
                 if edgedFrame[y][x] == 0:
-                    pass
-                else:
-                    sumX = sumX + x
-                    sumY = sumY + y
-                x = x + 1
-            y = y + 1
+                    print 'continue COG'
+                    continue
+                sumX = sumX + x
+                sumY = sumY + y
+                x += 1
+                print 'x:', x
+            y += 1
+            print 'y:',y
         avgX = sumX / len(edgedFrame[0])
         avgY = sumY / len(edgedFrame)
-            
+        
+        print 'avgX: ', avgX, 'avgY: ', avgY
         edgedFrame = cv2.rectangle(edgedFrame, (avgY - 30, avgX - 30), (avgY + 30, avgX + 30), (255, 0, 0), -1)    
         if self.debugMode:
             cv2.imshow('COG', edgedFrame)
@@ -74,26 +77,29 @@ class LineDetection:
         self.plot(line2scan)
         # print 'frame', frame
         edge = 0
+        first_byte=second_byte=0
         for p in range(len(line2scan)):
-            if line2scan[p] > 100:
+            if line2scan[p] > 50:
                 edge = line2scan[p] 
-                print 'found edge at', p, 'pixels'
+                #print 'found edge at', p, 'pixels'
+                #changed the printing to 'edge',not 'p'
+                print 'found edge at', p, 'pixels,value is',edge
+                #take the first two bytes
+                first_byte = p & 0x000000FF
+                second_byte = p & 0x0000FF00
+                second_byte = second_byte>>8
+                print 'bytes:',second_byte,'|',first_byte
                 break
+        else:
+            print 'no line'
                 
-        return edge
+        #changed to return two bytes representing p
+        return [first_byte,second_byte]
         if self.debugMode:
             cv2.imshow('followLine input', frame)
-            
+
     def filterContours(self, frame):
-        # gets edged image
-        _, conts, _ = cv2.findContours(frame, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        try:
-            largeC = conts[0]
-            Cx, Cy, Cw, Ch = cv2.boundingRect(largeC)
-        except:
-            largeC = []
-        if self.debugMode:
-            cv2.imshow('contour filtered', cv2.drawContours(frame, largeC, -1, (0, 255, 0)))
+        frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
         
 
     def plot(self, dataArray):

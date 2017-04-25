@@ -10,10 +10,12 @@ class ArduinoCom:
         self.address = 0x04
         
     def writeData(self, value):
+        #value is an array of size 2
         try:
-            self.bus.write_word(value)
-        except:
-            print 'you idiot!'
+            self.bus.write_byte_data(self.address, 0x00, value[0])
+            self.bus.write_byte_data(self.address, 0x00, value[1])
+        except Exception,e:
+            print str(e)
         
     def readData(self):
         try:
