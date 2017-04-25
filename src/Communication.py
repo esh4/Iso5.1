@@ -14,11 +14,13 @@ class ArduinoCom:
         try:
             self.bus.write_byte_data(self.address, 0x00, value[0])
             self.bus.write_byte_data(self.address, 0x00, value[1])
+            
+            #self.bus.write_byte_data(self.address, 0x00, value)
         except Exception,e:
             print str(e)
         
     def readData(self):
         try:
-            return self.bus.read_byte(self.address)
-        except:
-            print 'you idiot!'
+            return self.bus.read_byte_data(self.address, 0)
+        except Exception,e:
+            print str(e)

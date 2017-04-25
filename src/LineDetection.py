@@ -48,7 +48,7 @@ class LineDetection:
             
         return dst
          
-    def findLineCOG(self, edgedFrame):
+    def getErrorCOG(self, edgedFrame):
         sumX, sumY, avgX, avgY = 0, 0, 0, 0
         
         y = 0
@@ -72,7 +72,7 @@ class LineDetection:
         if self.debugMode:
             cv2.imshow('COG', edgedFrame)
             
-    def followLine(self, frame):  # find black line across a single horizon
+    def getErrorHorizontalScan(self, frame):  # find black main across a single horizon
         line2scan = frame[self.scanLine]
         self.plot(line2scan)
         # print 'frame', frame
@@ -83,7 +83,7 @@ class LineDetection:
                 edge = line2scan[p] 
                 #print 'found edge at', p, 'pixels'
                 #changed the printing to 'edge',not 'p'
-                print 'found edge at', p, 'pixels,value is',edge
+                print 'found edge at', p, 'pixels. value is:',edge
                 #take the first two bytes
                 first_byte = p & 0x000000FF
                 second_byte = p & 0x0000FF00
@@ -91,7 +91,7 @@ class LineDetection:
                 print 'bytes:',second_byte,'|',first_byte
                 break
         else:
-            print 'no line'
+            print 'no main'
                 
         #changed to return two bytes representing p
         return [first_byte,second_byte]

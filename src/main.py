@@ -3,10 +3,12 @@ import cv2
 from LineDetection import LineDetection
 from Communication import ArduinoCom
 import time
+import serial
 
 cap = cv2.VideoCapture(0)
 lineDetection = LineDetection(False)
 arduino = ArduinoCom()
+ser = serial.Serial('dev/ttyUSB0', 9600)
 
 def dud(num):
     pass
@@ -17,6 +19,8 @@ if lineDetection.debugMode:
     cv2.createTrackbar('horizon', 'control', 100, 480, dud)
 
 i = 1
+
+ser.write(16)
 while(i>0):
     #Capture frame-by-frame
     ret, frame = cap.read()
@@ -37,9 +41,11 @@ while(i>0):
             
         #main function to find line
         edgedFrame = lineDetection.edgeDetect(lineDetection.processFrame(frame))
-        px = lineDetection.followLine(edgedFrame)
-        
-        arduino.writeData(px)
+        px = lineDetection.getErrorHorizontalScan(edgedFrame)
+            
+        if arduino.readData() == 16:
+            arduino.writeData(px)
+            print 'sent!'
     
     else:
         print 'no frame!', i
