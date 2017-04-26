@@ -12,18 +12,7 @@ class LineDetection:
         self.scanLine = 100
         self.grayThresh = 255
     
-    def processFrame(self, frame):
-        # Our operations on the frame come here
-        grayFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        filtGrayFrame = cv2.inRange(grayFrame, 0, self.grayThresh)
-        
-        return filtGrayFrame
-        
-        if self.debugMode:
-            # cv2.imshow('threshed', grayFrame)
-            pass
-        
-        
+
         
     def edgeDetect(self, frame):
         src = frame
@@ -98,8 +87,9 @@ class LineDetection:
         if self.debugMode:
             cv2.imshow('followLine input', frame)
 
-    def filterContours(self, frame):
-        frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+    def displayCountours(self, cnts):
+        blackMat = np.zeros((480, 640, 3), np.uint8)
+        cv2.drawContours(blackMat, cnts, -1, (0, 255, 0), 3)  
         
 
     def plot(self, dataArray):

@@ -36,7 +36,7 @@ class GripPipeline:
         self.cv_threshold_output = None
 
         self.__find_contours_input = self.cv_threshold_output
-        self.__find_contours_external_only = True
+        self.__find_contours_external_only = False
 
         self.find_contours_output = None
 
@@ -96,7 +96,8 @@ class GripPipeline:
         Returns:
             A numpy.ndarray of the new size.
         """
-        return cv2.resize(input, ((int)(width), (int)(height)), 0, 0, interpolation)
+        #return cv2.resize(input, ((int)(width), (int)(height)), 0, 0, interpolation)
+        return cv2.resize(input, (width,height))
 
     @staticmethod
     def __cv_cvtcolor(src, code):
@@ -145,9 +146,10 @@ class GripPipeline:
         if(external_only):
             mode = cv2.RETR_EXTERNAL
         else:
-            mode = cv2.RETR_LIST
+            mode = cv2.RETR_TREE
         method = cv2.CHAIN_APPROX_SIMPLE
-        im2, contours, hierarchy =cv2.findContours(input, mode=mode, method=method)
+
+        im2, contours, hierarchy = cv2.findContours(input, mode=mode, method=method)
         return contours
 
     @staticmethod

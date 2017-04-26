@@ -34,26 +34,11 @@ while(i>0):
     ret, frame = cap.read()
     #frame = cv2.imread('test.png')
     if ret:
+        grip.process(frame)
         
-        #pretty important
-        frame = cv2.resize(frame, (640, 480))
+        lineDetection.displayContours(grip.filter_contours_output)       
+        ser.write()
         
-        #gray image thersh holding
-        if lineDetection.debugMode:
-            lineDetection.grayThresh = cv2.getTrackbarPos('filter', 'control')
-            lineDetection.scanLine = cv2.getTrackbarPos('horizon', 'control')
-        
-        else:
-            lineDetection.grayThresh = 50
-            lineDetection.scanLine = 300
-            
-        #main function to find line
-        edgedFrame = lineDetection.edgeDetect(lineDetection.processFrame(frame))
-        px = lineDetection.getErrorHorizontalScan(edgedFrame)
-            
-        #if ser.readline() != None:
-        ser.write(px)
-        #print 'sent!'
     
     else:
         print 'no frame!', i
