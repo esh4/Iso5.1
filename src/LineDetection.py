@@ -90,8 +90,8 @@ class LineDetection:
                 second_byte = second_byte>>8
                 print 'bytes:',second_byte,'|',first_byte
                 break
-        else:
-            print 'no main'
+        #else:
+         #   print 'no main'
                 
         #changed to return two bytes representing p
         return [first_byte,second_byte]

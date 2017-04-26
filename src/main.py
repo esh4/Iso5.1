@@ -1,14 +1,22 @@
 import numpy as np
 import cv2
 from LineDetection import LineDetection
-from Communication import ArduinoCom
+#sfrom Communication import ArduinoCom
 import time
 import serial
+import platform
+from grip import GripPipeline
 
 cap = cv2.VideoCapture(0)
-lineDetection = LineDetection(False)
-arduino = ArduinoCom()
-ser = serial.Serial('dev/ttyUSB0', 9600)
+lineDetection = LineDetection(True)
+#arduino = ArduinoCom()
+grip = GripPipeline()
+
+
+try:
+    ser = serial.Serial('COM5', 9600)
+except Exception,e:
+    print str(e)
 
 def dud(num):
     pass
@@ -20,7 +28,7 @@ if lineDetection.debugMode:
 
 i = 1
 
-ser.write(16)
+#ser.write('16')
 while(i>0):
     #Capture frame-by-frame
     ret, frame = cap.read()
@@ -43,9 +51,9 @@ while(i>0):
         edgedFrame = lineDetection.edgeDetect(lineDetection.processFrame(frame))
         px = lineDetection.getErrorHorizontalScan(edgedFrame)
             
-        if arduino.readData() == 16:
-            arduino.writeData(px)
-            print 'sent!'
+        #if ser.readline() != None:
+        ser.write(px)
+        #print 'sent!'
     
     else:
         print 'no frame!', i
