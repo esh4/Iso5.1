@@ -19,17 +19,17 @@ class GripPipeline:
         self.resize_image_output = None
 
         self.__cv_cvtcolor_src = self.resize_image_output
-        self.__cv_cvtcolor_code = cv2.COLOR_BGR2BGRA
+        self.__cv_cvtcolor_code = cv2.COLOR_BGR2GRAY
 
         self.cv_cvtcolor_output = None
 
         self.__cv_medianblur_src = self.cv_cvtcolor_output
-        self.__cv_medianblur_ksize = 5.0
+        self.__cv_medianblur_ksize = 5
 
         self.cv_medianblur_output = None
 
         self.__cv_threshold_src = self.cv_medianblur_output
-        self.__cv_threshold_thresh = 50.0
+        self.__cv_threshold_thresh = 50
         self.__cv_threshold_maxval = 255.0
         self.__cv_threshold_type = cv2.THRESH_BINARY
 
@@ -41,16 +41,16 @@ class GripPipeline:
         self.find_contours_output = None
 
         self.__filter_contours_contours = self.find_contours_output
-        self.__filter_contours_min_area = 1.0
-        self.__filter_contours_min_perimeter = 2.0
-        self.__filter_contours_min_width = 3.0
+        self.__filter_contours_min_area = 200.0
+        self.__filter_contours_min_perimeter = 500.0
+        self.__filter_contours_min_width = 10.0
         self.__filter_contours_max_width = 1000
-        self.__filter_contours_min_height = 4.0
+        self.__filter_contours_min_height = 0.0
         self.__filter_contours_max_height = 1000
         self.__filter_contours_solidity = [0, 100]
         self.__filter_contours_max_vertices = 1000000
         self.__filter_contours_min_vertices = 0
-        self.__filter_contours_min_ratio = 2.0
+        self.__filter_contours_min_ratio = 0.0
         self.__filter_contours_max_ratio = 1000
 
         self.filter_contours_output = None
@@ -68,14 +68,14 @@ class GripPipeline:
         self.__cv_cvtcolor_src = self.resize_image_output
         (self.cv_cvtcolor_output) = self.__cv_cvtcolor(self.__cv_cvtcolor_src, self.__cv_cvtcolor_code)
 
-        # Step CV_medianBlur0:
-        self.__cv_medianblur_src = self.cv_cvtcolor_output
-        (self.cv_medianblur_output) = self.__cv_medianblur(self.__cv_medianblur_src, self.__cv_medianblur_ksize)
-
         # Step CV_Threshold0:
-        self.__cv_threshold_src = self.cv_medianblur_output
+        self.__cv_threshold_src = self.cv_cvtcolor_output
         (self.cv_threshold_output) = self.__cv_threshold(self.__cv_threshold_src, self.__cv_threshold_thresh, self.__cv_threshold_maxval, self.__cv_threshold_type)
 
+        # Step CV_medianBlur0:
+        #self.__cv_medianblur_src = self.cv_threshold_output
+        #(self.cv_medianblur_output) = self.__cv_medianblur(self.__cv_medianblur_src, self.__cv_medianblur_ksize)
+        
         # Step Find_Contours0:
         self.__find_contours_input = self.cv_threshold_output
         (self.find_contours_output) = self.__find_contours(self.__find_contours_input, self.__find_contours_external_only)
@@ -132,7 +132,8 @@ class GripPipeline:
         Returns:
             A black and white numpy.ndarray.
         """
-        return cv2.threshold(src, thresh, max_val, type)[1]
+        #return cv2.threshold(src, thresh, max_val, type)[1]
+        return cv2.inRange(src,0,thresh)
 
     @staticmethod
     def __find_contours(input, external_only):
@@ -149,7 +150,7 @@ class GripPipeline:
             mode = cv2.RETR_TREE
         method = cv2.CHAIN_APPROX_SIMPLE
 
-        im2, contours, hierarchy = cv2.findContours(input, mode=mode, method=method)
+        _, contours, _ = cv2.findContours(input, mode=mode, method=method)
         return contours
 
     @staticmethod
@@ -175,26 +176,25 @@ class GripPipeline:
         """
         output = []
         for contour in input_contours:
-            x,y,w,h = cv2.boundingRect(contour)
-            if (w < min_width or w > max_width):
-                continue
-            if (h < min_height or h > max_height):
-                continue
-            area = cv2.contourArea(contour)
-            if (area < min_area):
-                continue
-            if (cv2.arcLength(contour, True) < min_perimeter):
-                continue
-            hull = cv2.convexHull(contour)
-            solid = 100 * area / cv2.contourArea(hull)
-            if (solid < solidity[0] or solid > solidity[1]):
-                continue
-            if (len(contour) < min_vertex_count or len(contour) > max_vertex_count):
-                continue
-            ratio = (float)(w) / h
-            if (ratio < min_ratio or ratio > max_ratio):
-                continue
-            output.append(contour)
+            try:
+                x,y,w,h = cv2.boundingRect(contour)
+                if (w < min_width or w > max_width):
+                    continue
+                if (h < min_height or h > max_height):
+                    continue
+                area = cv2.contourArea(contour)
+                if (area < min_area):
+                    continue
+                if (cv2.arcLength(contour, True) < min_perimeter):
+                    continue
+                if (len(contour) < min_vertex_count or len(contour) > max_vertex_count):
+                    continue
+                ratio = (float)(w) / h
+                if (ratio < min_ratio or ratio > max_ratio):
+                    continue
+                output.append(contour)
+            except Exception,e:
+                print str(e)
         return output
 
 
