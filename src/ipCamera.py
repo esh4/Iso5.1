@@ -32,3 +32,11 @@ class ipCamera(object):
             frame = cv2.imdecode(np.fromstring(jpg, dtype=np.uint8),
                                  cv2.IMREAD_COLOR)
             return frame
+        
+    
+    def reconnect(self):
+        try:
+            print 'trying to connect'
+            self.stream = requests.get(self.url, stream=True)
+        except:
+            print 'cant connect'
