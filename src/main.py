@@ -18,7 +18,7 @@ grip = GripPipeline()
 system = platform.system()
 print system
 display = Display()
-ser = 0
+ser = None
 
 def connectArduino():
     global ser
@@ -29,6 +29,8 @@ def connectArduino():
             ]
     if not arduino_ports:
         print"No Arduino found"
+        #ser = None
+        return 0
     if len(arduino_ports) > 0:
         ser = serial.Serial(arduino_ports[0], 4000000)
     else:
@@ -37,6 +39,8 @@ def connectArduino():
 cap = None
 def connectCam():
     global cap
+    if cap != None:
+        cap.release()
     cameraPort = 0
     if system == 'Linux':
         n = os.popen('sudo ls /dev/video*').read()
@@ -46,6 +50,7 @@ def connectCam():
     else:
         cameraPort = int(raw_input('enter cam port'))
     cap = cv2.VideoCapture(cameraPort)
+    
 oldFrame = None
 i = 1
 connectArduino()
@@ -59,7 +64,8 @@ while(i>0):
     #frame = cv2.imread('test.png')
     try:
         ret, frame = cap.read()
-        if np.array_equal(frame, oldFrame):
+        if np.array_equal(frame, oldFrame) and system != 'Windows':
+            print 'identical frames'
             connectCam()
         if ret:#type(frame) == 'numpy.ndarray':
             grip.process(frame)
@@ -67,7 +73,7 @@ while(i>0):
             display.addFrame('filtered contours', line.getContourFrame(grip.filter_contours_output))
             
             setpoint = line.getContourCentroid(grip.filter_contours_output[0])
-            print 'centroid', setpoint
+            print 'centroid:    ', setpoint
             
             
             
@@ -84,7 +90,7 @@ while(i>0):
             oldFrame = frame
         else:
             print 'no frame!', i
-            time.sleep(1)
+            connectCam()
     except Exception,e:
         print('Error on line {}'.format(sys.exc_info()[-1].tb_lineno), type(e), e)
         try:
