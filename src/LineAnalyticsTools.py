@@ -52,25 +52,15 @@ class LineAnalysis:
             
     def getErrorHorizontalScan(self, frame):  # find black main across a single horizon
         line2scan = frame[self.scanLine]
-        self.plot(line2scan)
+        #self.plot(line2scan)
         # print 'frame', frame
-        edge = 0
-        first_byte=second_byte=0
         for p in range(len(line2scan)):
-            if line2scan[p] > 50:
-                edge = line2scan[p] 
-                print 'found edge at', p, 'pixels. value is:',edge
-                #take the first two bytes
-                first_byte = p & 0x000000FF
-                second_byte = p & 0x0000FF00
-                second_byte = second_byte>>8
-                print 'bytes:',second_byte,'|',first_byte
-                break
-        #else:
-         #   print 'no main'
-                
-        #changed to return two bytes representing p
-        return [first_byte,second_byte]
+            #print line2scan[p]
+            if line2scan[p] < 40.0:
+                #edge = line2scan[p] 
+                #print 'edge:    ', p
+                return p        
+    
         if self.debugMode:
             self.addDisplay('f', 'followLine input', frame)
 
