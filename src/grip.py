@@ -29,7 +29,7 @@ class GripPipeline:
         self.cv_medianblur_output = None
 
         self.__cv_threshold_src = self.cv_medianblur_output
-        self.__cv_threshold_thresh = 50
+        self.__cv_threshold_thresh = 43.0
         self.__cv_threshold_maxval = 255.0
         self.__cv_threshold_type = cv2.THRESH_BINARY
 
@@ -196,6 +196,4 @@ class GripPipeline:
             except Exception,e:
                 print str(e)
         return output
-
-
 

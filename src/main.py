@@ -57,7 +57,7 @@ connectArduino()
 connectCam()
 
 while(i>0):
-    #display.reset()
+    display.reset()
     #Capture frame-by-frame
     #ret, frame = cap.read()
     
@@ -66,15 +66,18 @@ while(i>0):
         ret, frame = cap.read()
         if np.array_equal(frame, oldFrame) and system != 'Windows':
             print 'identical frames'
-            connectCam()
+            connectCam()    
         if ret:#type(frame) == 'numpy.ndarray':
             grip.process(frame)
                     
             display.addFrame('filtered contours', line.getContourFrame(grip.filter_contours_output))
             
             setpoint = line.getContourCentroid(grip.filter_contours_output[0])
-            print 'centroid:    ', setpoint
+            #print 'centroid:    ', setpoint
             
+            #edge = line.getErrorHorizontalScan(grip.cv_cvtcolor_output)
+            #print 'edge detected:    ', setpoint
+            #setpoint = (edge + cog)/2
             
             
             display.addFrame('cvt', grip.cv_cvtcolor_output)
