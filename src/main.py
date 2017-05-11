@@ -22,17 +22,23 @@ ser = None
 
 def connectArduino():
     global ser
-    arduino_ports = [
-            p[0]
-            for p in serial.tools.list_ports.comports()
-            if '2341' in p[2]
-            ]
-    if not arduino_ports:
-        print"No Arduino found"
-        #ser = None
-        return 0
+    arduino_ports = []
+    if system == 'Windows':
+        arduino_ports.append(raw_input('arduino COM: '))
+        
+    elif system == 'Linux':
+        arduino_ports = [
+                p[0]
+                for p in serial.tools.list_ports.comports()
+                if '2341' in p[2]
+                ]
+        if not arduino_ports:
+            print"No Arduino found"
+            #ser = None
+            return 0
     if len(arduino_ports) > 0:
         ser = serial.Serial(arduino_ports[0], 4000000)
+        print 'arduino connected!'
     else:
         ser = None
 
@@ -67,18 +73,21 @@ while(i>0):
         if np.array_equal(frame, oldFrame) and system != 'Windows':
             print 'identical frames'
             connectCam()    
+            continue
         if ret:#type(frame) == 'numpy.ndarray':
-            grip.process(frame)
+            roi = line.getRoi(frame)
+            grip.process(roi)
                     
-            display.addFrame('filtered contours', line.getContourFrame(grip.filter_contours_output))
+            display.addFrame('filtered contours', line.getContourFrame(grip.find_contours_output))
             
-            setpoint = line.getContourCentroid(grip.filter_contours_output[0])
+            #setpoint = line.getContourCentroid(grip.filter_contours_output[0])
             #print 'centroid:    ', setpoint
             
             #edge = line.getErrorHorizontalScan(grip.cv_cvtcolor_output)
             #print 'edge detected:    ', setpoint
             #setpoint = (edge + cog)/2
-            
+            setpoint = line.findLineRoi(grip.cv_threshold_output, -1)
+            print setpoint
             
             display.addFrame('cvt', grip.cv_cvtcolor_output)
             display.addFrame('thresh',grip.cv_threshold_output)
@@ -91,6 +100,7 @@ while(i>0):
             display.displayImages(system)
             
             oldFrame = frame
+            #time.sleep(0.02)
         else:
             print 'no frame!', i
             connectCam()
@@ -111,10 +121,10 @@ while(i>0):
         
             #cap.reconnect()
         
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    if cv2.waitKey(1) and 0xFF == ord('q') and system == 'Windows':
         break
     
-    i += 1
+    #i += 1
     #except Exception,e:
        # print('Error on line {}'.format(sys.exc_info()[-1].tb_lineno), type(e), e)
        

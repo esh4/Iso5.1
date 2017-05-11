@@ -59,13 +59,41 @@ class LineAnalysis:
             if line2scan[p] < 40.0:
                 #edge = line2scan[p] 
                 #print 'edge:    ', p
-                return p        
+                return p
     
         if self.debugMode:
             self.addDisplay('f', 'followLine input', frame)
+    
+    def getRoi(self, f, roiY=480/3*2):
+        #roiY = 480/3*2
+        roi = f[roiY:roiY+30, 0:640]
+        return roi
+    
+    def findLineRoi(self, roi, bias):
+        
+        self.addDisplay('f', 'roi', roi)
+        _,cnts,_ = cv2.findContours(roi, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        
+        cnts = [c for c in cnts if cv2.contourArea(c) > 100]
+        print 'num of connts', len(cnts)
+        if len(cnts) > 1:
+            def getKey(c):
+                x,y,w,h = cv2.boundingRect(c)
+                return x
+            sortC = sorted(cnts, key=getKey)
+    
+            if bias > 0:
+                x ,_,w,_ = cv2.boundingRect(sortC[1])
+                return x + w/2
+            else:
+                x ,_,w,_ = cv2.boundingRect(sortC[0])
+                return x +w/2
+        else:
+            x ,_,w,_ = cv2.boundingRect(cnts[0])
+            return x + w/2
 
     def getContourFrame(self, cnts):
-        blackMat = np.zeros((480, 640, 3), np.uint8)
+        blackMat = np.ones((480, 640, 3), np.uint8)
         #print len(cnts)  
         return cv2.drawContours(blackMat, cnts, -1, (0, 255, 0), 3)
         

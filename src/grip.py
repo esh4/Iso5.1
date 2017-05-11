@@ -61,11 +61,11 @@ class GripPipeline:
         Runs the pipeline and sets all outputs to new values.
         """
         # Step Resize_Image0:
-        self.__resize_image_input = source0
-        (self.resize_image_output) = self.__resize_image(self.__resize_image_input, self.__resize_image_width, self.__resize_image_height, self.__resize_image_interpolation)
+        #self.__resize_image_input = source0
+        #(self.resize_image_output) = self.__resize_image(self.__resize_image_input, self.__resize_image_width, self.__resize_image_height, self.__resize_image_interpolation)
 
         # Step CV_cvtColor0:
-        self.__cv_cvtcolor_src = self.resize_image_output
+        self.__cv_cvtcolor_src = source0
         (self.cv_cvtcolor_output) = self.__cv_cvtcolor(self.__cv_cvtcolor_src, self.__cv_cvtcolor_code)
 
         # Step CV_Threshold0:
