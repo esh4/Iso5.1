@@ -4,21 +4,20 @@ from LineAnalyticsTools import Display
 from LineAnalyticsTools import LineAnalysis
 import sys
 import os
-#from Communication import ArduinoCom
 import time
 import serial
 import serial.tools.list_ports
 import platform
 from grip import GripPipeline
-from ipCamera import ipCamera
-#import warnings
 
 line = LineAnalysis(False)
 grip = GripPipeline()
 system = platform.system()
 print system
-display = Display()
+#display = Display()
 ser = None
+cap = None
+oldFrame = None
 
 def connectArduino():
     global ser
@@ -42,7 +41,6 @@ def connectArduino():
     else:
         ser = None
 
-cap = None
 def connectCam():
     global cap
     if cap != None:
@@ -57,52 +55,45 @@ def connectCam():
         cameraPort = int(raw_input('enter cam port'))
     cap = cv2.VideoCapture(cameraPort)
     
-oldFrame = None
-i = 1
+
 connectArduino()
 connectCam()
 
-while(i>0):
-    display.reset()
+while True:
     #Capture frame-by-frame
-    #ret, frame = cap.read()
-    
-    #frame = cv2.imread('test.png')
     try:
+        display.reset()
         ret, frame = cap.read()
         if np.array_equal(frame, oldFrame) and system != 'Windows':
             print 'identical frames'
             connectCam()    
             continue
-        if ret:#type(frame) == 'numpy.ndarray':
+        
+        if ret:
             roi = line.getRoi(frame)
             grip.process(roi)
                     
-            display.addFrame('filtered contours', line.getContourFrame(grip.find_contours_output))
-            
-            #setpoint = line.getContourCentroid(grip.filter_contours_output[0])
-            #print 'centroid:    ', setpoint
-            
-            #edge = line.getErrorHorizontalScan(grip.cv_cvtcolor_output)
-            #print 'edge detected:    ', setpoint
-            #setpoint = (edge + cog)/2
             setpoint = line.findLineRoi(grip.cv_threshold_output, -1)
             print setpoint
             
-            display.addFrame('cvt', grip.cv_cvtcolor_output)
-            display.addFrame('thresh',grip.cv_threshold_output)
-            
+
             if ser!=None: 
                 val = '<'+str(setpoint)+'>'      
                 ser.write(val)
-                
+            
+            '''
+            add frames to array that gets displayed on windows machine:
+            
+            display.addFrame('filtered contours', line.getContourFrame(grip.find_contours_output))
+            display.addFrame('cvt', grip.cv_cvtcolor_output)
+            display.addFrame('thresh',grip.cv_threshold_output)
             display.addFramesPlots(line.displayFramesID,line.displayFrames,line.displayPlotsID,line.displayPlots)
             display.displayImages(system)
+            '''
             
             oldFrame = frame
-            #time.sleep(0.02)
         else:
-            print 'no frame!', i
+            print 'no frame!'
             connectCam()
     except Exception,e:
         print('Error on line {}'.format(sys.exc_info()[-1].tb_lineno), type(e), e)

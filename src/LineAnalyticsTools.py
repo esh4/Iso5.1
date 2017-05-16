@@ -47,35 +47,24 @@ class LineAnalysis:
             
         return dst
          
-    def getErrorCOG(self, edgedFrame):
-        pass
-            
-    def getErrorHorizontalScan(self, frame):  # find black main across a single horizon
-        line2scan = frame[self.scanLine]
-        #self.plot(line2scan)
-        # print 'frame', frame
-        for p in range(len(line2scan)):
-            #print line2scan[p]
-            if line2scan[p] < 40.0:
-                #edge = line2scan[p] 
-                #print 'edge:    ', p
-                return p
-    
         if self.debugMode:
             self.addDisplay('f', 'followLine input', frame)
     
     def getRoi(self, f, roiY=480/3*2):
-        #roiY = 480/3*2
         roi = f[roiY:roiY+30, 0:640]
         return roi
     
+    '''
+        -roi (region of interest) - croped out frame to find line on
+        -bias - follow left or right, positive follows right negative follows left
+    '''
     def findLineRoi(self, roi, bias):
         
         self.addDisplay('f', 'roi', roi)
         _,cnts,_ = cv2.findContours(roi, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         
         cnts = [c for c in cnts if cv2.contourArea(c) > 100]
-        print 'num of connts', len(cnts)
+        #print 'num of connts', len(cnts)
         if len(cnts) > 1:
             def getKey(c):
                 x,y,w,h = cv2.boundingRect(c)
